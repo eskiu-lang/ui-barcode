@@ -1,4 +1,4 @@
 # eskiu.lock: written by eskiuc (eskiuc fetch updates it); do not edit.
 barcode	path	../..
 scan	root	.
-ui	git	https://github.com/eskiu-lang/ui	v0.3.0	842327c137c0d9f8e17bcf4319e3bbfd23f53ab3
+ui	git	https://github.com/eskiu-lang/ui	v0.3.0	58a771a037a4452b6dea1a62a2cf2093579dd48a
