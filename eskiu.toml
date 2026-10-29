@@ -3,4 +3,4 @@ name = "barcode"
 version = "0.1.0"
 
 [deps]
-ui = { path = "../eskiu-ui" }
+ui = { git = "https://github.com/eskiu-lang/ui", rev = "v0.3.0" }

@@ -42,6 +42,14 @@ an app's own `ui.toml` can word).
 `examples/scan` reads a QR code and pauses until "Scan again" (`ui run ios` or
 `ui run android`, on a device: simulators have no camera).
 
+
+## Install
+
+In an app made with `ui new`:
+
+```bash
+eskiuc add barcode --git https://github.com/eskiu-lang/ui-barcode --rev v0.1.0
+```
 ## Tests
 
 `eskiuc test` drives a scanner with the events a platform sends: codes of two formats, a value
