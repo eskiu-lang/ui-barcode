@@ -1,0 +1,6 @@
+[package]
+name = "barcode"
+version = "0.1.0"
+
+[deps]
+ui = { path = "../eskiu-ui" }

@@ -1,0 +1,60 @@
+// <barcode>: codes read live from the camera, for apps on eskiu-lang/ui. A BarcodeScanner
+// shows the camera filling its box and hands each code it reads to its handler: the system's
+// own detector on iOS (AVFoundation), ML Kit's on Android (bundled, no network). The web and
+// the desktop have no scanner (ScanUnavailable).
+//
+//     BarcodeScanner(Style{grow: 1}, "qr", scanning.get(), void(Barcode code) {
+//         if (code.status == ScanCode) { scanned.set_text(code.value); scanning.set(false); }
+//     });
+import <string>;
+import <ui>;
+
+enum ScanStatus { ScanCode, ScanDenied, ScanUnavailable }
+
+// A code, or why the scanner shows nothing. `format` (one of the names below) and `value`
+// (the code's text) are borrowed for the handler's call: copy them to keep them.
+struct Barcode { int status; string format; string value; }
+
+// The formats a scanner looks for, comma separated: qr, aztec, datamatrix, pdf417, ean13, ean8,
+// upca, upce, code128, code39, code93, itf, codabar ("" or "all": every one).
+const string kBarcodeAll = "all";
+
+// A view event of the scanner as a Barcode; the strings point into `payload`, whose format
+// word is cut off in place. A code's payload is "FORMAT VALUE", the value the rest.
+Barcode barcode_read(string name, *char payload) {
+    if (name != null && strcmp(name, "denied") == 0) { return Barcode{ScanDenied, "", ""}; }
+    if (name == null || strcmp(name, "code") != 0 || payload == null) { return Barcode{ScanUnavailable, "", ""}; }
+    int at = 0;
+    while (payload[at] != 0 && payload[at] != ' ') { at++; }
+    if (payload[at] == 0) { return Barcode{ScanCode, payload, ""}; }
+    payload[at] = 0;
+    return Barcode{ScanCode, payload, &payload[at + 1]};
+}
+
+void barcode_release_handler(escaping fn(Barcode)->void handler) { free_closure(handler); }
+
+struct BarcodeHandler { fn(Barcode)->void handler; }
+
+// The back camera, live, filling the box the layout gives it (cropped to it), reading the
+// codes of `formats` while `scanning`. `on_code` gets each code read (the same code again only
+// after a second and a half), or ScanDenied / ScanUnavailable when the camera cannot be shown.
+// The first one mounted asks for the camera permission.
+void BarcodeScanner(Style style, string formats, bool scanning, escaping fn(Barcode)->void on_code) {
+    static int tag;
+    *Slot slot = ui_slot(10, &tag);
+    *BarcodeHandler held = (*BarcodeHandler)slot.data;
+    if (held == null) {
+        held = alloc<BarcodeHandler>(1);
+        slot.data = held;
+        slot.dispose = void() { barcode_release_handler(held.handler); free(held); };
+    } else { barcode_release_handler(held.handler); }
+    held.handler = on_code;
+    ui_native_prop("formats", formats == null || formats[0] == 0 ? kBarcodeAll : formats);
+    ui_native_prop("scanning", scanning ? "1" : "0");
+    NativeView(style, "barcode", void(string name, string payload) {
+        // The payload is read during the call; a copy is cut into format and value.
+        string copy = ui_copy(payload == null ? "" : payload);
+        held.handler(barcode_read(name, (*char)copy));
+        free(copy);
+    });
+}

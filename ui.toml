@@ -1,0 +1,11 @@
+# What an app that depends on this package gets. An app's own ui.toml wins for the same key,
+# so it can say in its own words why it uses the camera.
+[ios]
+frameworks = ["AVFoundation"]
+
+[ios.plist]
+NSCameraUsageDescription = "Scans codes"
+
+[android]
+permissions = ["android.permission.CAMERA"]
+dependencies = ["com.google.mlkit:barcode-scanning:17.3.0"]

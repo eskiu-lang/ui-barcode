@@ -1,0 +1,38 @@
+// Scan: a QR code read live from the camera, from <barcode>; scanning pauses on the first
+// code until "Scan again". `ui run ios` or `ui run android` on a device.
+import <string>;
+import <ui>;
+import <ui/kit>;
+import <barcode>;
+
+void Demo() {
+    *StringState found = use_string("");
+    *Signal<int> status = use_signal<int>(ScanCode);
+    bool scanning = found.get()[0] == 0 && status.get() == ScanCode;
+    Column(Style{grow: 1, background: kit.page}) {
+        BarcodeScanner(Style{grow: 1}, "qr", scanning, void(Barcode code) {
+            status.set(code.status);
+            if (code.status == ScanCode) { found.set(code.value); }
+        });
+        Column(Style{padding: 24, gap: 12}) {
+            if (status.get() == ScanDenied) {
+                Secondary("The camera is off for this app.");
+                Button("Open Settings") { ui_open_settings(); }
+            } else if (status.get() == ScanUnavailable) {
+                Secondary("No camera here.");
+            } else if (found.get()[0] == 0) {
+                Secondary("Point the camera at a QR code.");
+            } else {
+                TextWith(Style{font_size: 18, font_weight: 700, color: kit.ink}, found.get());
+                Button("Scan again") { found.set(""); }
+            }
+        }
+    }
+}
+
+void ui_app_start(int which) {
+    kit_follow_system();
+    ui_mount() { Demo(); }
+}
+
+void ui_app_stop() {}

@@ -1,0 +1,8 @@
+[package]
+name = "scan"
+version = "0.1.0"
+main = "src/main.esk"
+
+[deps]
+ui = { path = "../../../eskiu-ui" }
+barcode = { path = "../.." }

@@ -1,0 +1,4 @@
+# eskiu.lock: written by eskiuc (eskiuc fetch updates it); do not edit.
+barcode	path	../..
+scan	root	.
+ui	path	../../../eskiu-ui

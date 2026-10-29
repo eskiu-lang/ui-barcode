@@ -1,0 +1,77 @@
+// <barcode> with no device: the test sends the view events a platform would and checks what
+// the handler gets and the props the scanner sends. Each check that fails exits with 1.
+import <io>;
+import <string>;
+import <ui>;
+import <barcode>;
+
+String got;
+int calls;
+
+void check(bool ok, string what) {
+    if (!ok) {
+        printf("FAIL %s (got: %s)\n", what, got.data == null ? "" : got.data);
+        exit(1);
+    }
+}
+
+*Signal<bool> scanning;
+List<String> named;
+
+int main() {
+    Ui runtime;
+    ui_init(&runtime, void(*uint8 data, int len) {
+        List<Mutation> items;
+        ui_decode(data, len, &items);
+        for (i in 0..items.size) {
+            if (items.data[i].op == 11) {
+                String pair;
+                String_format(&pair, "%s=%s", items.data[i].name, items.data[i].text);
+                named.push(pair);
+            }
+        }
+        items.free();
+        ui_complete(ui.sequence);
+    });
+    scanning = signal_new<bool>(true);
+    ui_mount() {
+        BarcodeScanner(Style{grow: 1}, "qr,ean13", scanning.get(), void(Barcode code) {
+            calls++;
+            if (code.status == ScanCode) { String_format(&got, "%s|%s", code.format, code.value); }
+            else if (code.status == ScanDenied) { String_from(&got, "denied"); }
+            else { String_from(&got, "unavailable"); }
+        });
+    }
+    ui_frame();
+    bool formats = false;
+    bool on = false;
+    for (i in 0..named.size) {
+        if (String_eq_cstr(&named.data[i], "formats=qr,ean13") == 1) formats = true;
+        if (String_eq_cstr(&named.data[i], "scanning=1") == 1) on = true;
+    }
+    check(formats && on, "the scanner is told its formats and to scan");
+    *Node view = null;
+    for (i in 0..ui.by_id.size) { if (ui.by_id.data[i] != null && ui.by_id.data[i].kind == 13) { view = ui.by_id.data[i]; } }
+    check(view != null, "a native view");
+    ui_event_view(view.id, view.generation, "code", "qr https://eskiu-lang.org/a b");
+    check(String_eq_cstr(&got, "qr|https://eskiu-lang.org/a b") == 1, "a code: its format and value, spaces and all");
+    ui_event_view(view.id, view.generation, "code", "ean13 7501234567893");
+    check(String_eq_cstr(&got, "ean13|7501234567893") == 1, "another format");
+    ui_event_view(view.id, view.generation, "denied", "");
+    check(String_eq_cstr(&got, "denied") == 1, "denied");
+    ui_event_view(view.id, view.generation, "unavailable", "");
+    check(String_eq_cstr(&got, "unavailable") == 1 && calls == 4, "unavailable");
+    for (i in 0..named.size) { String_free(&named.data[i]); }
+    named.clear();
+    scanning.set(false);
+    ui_frame();
+    bool off = false;
+    for (i in 0..named.size) { if (String_eq_cstr(&named.data[i], "scanning=0") == 1) off = true; }
+    check(off, "pausing tells the scanner");
+    ui_shutdown();
+    for (i in 0..named.size) { String_free(&named.data[i]); }
+    named.free();
+    String_free(&got);
+    printf("PASS barcode\n");
+    return 0;
+}
