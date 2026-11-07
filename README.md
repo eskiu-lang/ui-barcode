@@ -43,6 +43,10 @@ an app's own `ui.toml` can word).
 `ui run android`, on a device: simulators have no camera).
 
 
+## Documentation
+
+Every public function and type, with its documentation, is in the [API reference](docs/api.md).
+
 ## Install
 
 In an app made with `ui new`:
