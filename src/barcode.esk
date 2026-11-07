@@ -1,14 +1,17 @@
 // <barcode>: codes read live from the camera, for apps on eskiu-lang/ui. A BarcodeScanner
 // shows the camera filling its box and hands each code it reads to its handler: the system's
-// own detector on iOS (AVFoundation), ML Kit's on Android (bundled, no network). The web and
-// the desktop have no scanner (ScanUnavailable).
+// own detector on iOS (AVFoundation), ML Kit's on Android (bundled, no network), the browser's
+// BarcodeDetector on the web. Browsers without it and the desktop have no scanner
+// (ScanUnavailable).
 //
 //     BarcodeScanner(Style{grow: 1}, "qr", scanning.get(), void(Barcode code) {
-//         if (code.status == ScanCode) { scanned.set_text(code.value); scanning.set(false); }
+//         if (code.status == ScanCode) { scanned.set(code.value); scanning.set(false); }
 //     });
 import <string>;
 import <ui>;
 
+// What a Barcode reports: a code was read, the user denied the camera, or there is no
+// camera or scanner here.
 enum ScanStatus { ScanCode, ScanDenied, ScanUnavailable }
 
 // A code, or why the scanner shows nothing. `format` (one of the names below) and `value`
@@ -31,8 +34,12 @@ Barcode barcode_read(string name, *char payload) {
     return Barcode{ScanCode, payload, &payload[at + 1]};
 }
 
+// Frees a scanner handler's closure; BarcodeScanner calls it when it replaces or drops the
+// handler.
 void barcode_release_handler(escaping fn(Barcode)->void handler) { free_closure(handler); }
 
+// The handler a BarcodeScanner holds between renders (owned: freed when the scanner goes
+// away).
 struct BarcodeHandler { fn(Barcode)->void handler; }
 
 // The back camera, live, filling the box the layout gives it (cropped to it), reading the
