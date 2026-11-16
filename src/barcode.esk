@@ -1,4 +1,4 @@
-// <barcode>: codes read live from the camera, for apps on eskiu-lang/ui. A BarcodeScanner
+// <barcode>: codes read live from the camera, for apps on eskiu-packages/ui. A BarcodeScanner
 // shows the camera filling its box and hands each code it reads to its handler: the system's
 // own detector on iOS (AVFoundation), ML Kit's on Android (bundled, no network), the browser's
 // BarcodeDetector on the web. Browsers without it and the desktop have no scanner
