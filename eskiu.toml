@@ -1,6 +1,6 @@
 [package]
 name = "barcode"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 ui = { git = "https://github.com/eskiu-lang/ui", rev = "v0.6.0" }
