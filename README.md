@@ -52,7 +52,7 @@ Every public function and type, with its documentation, is in the [API reference
 In an app made with `ui new`:
 
 ```bash
-eskiuc add barcode --git https://github.com/eskiu-packages/ui-barcode --rev v0.1.2
+eskiuc add barcode --git https://github.com/eskiu-packages/ui-barcode --rev v0.1.3
 ```
 ## Tests
 
