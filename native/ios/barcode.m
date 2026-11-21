@@ -18,6 +18,11 @@ static NSDictionary<NSString *, AVMetadataObjectType> *formatTypes(void) {
     return types;
 }
 
+// barcode_supported: a camera the scanner can open (a simulator has none).
+int barcode_native_supported(void) {
+    return [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo] != nil;
+}
+
 @interface EskiuBarcodeView : UIView <AVCaptureMetadataOutputObjectsDelegate>
 @property(nonatomic, copy) UiViewEmit emit;
 @property(nonatomic, strong) AVCaptureSession *session;

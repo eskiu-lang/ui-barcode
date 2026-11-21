@@ -1,8 +1,9 @@
 // <barcode>: codes read live from the camera, for apps on eskiu-packages/ui. A BarcodeScanner
 // shows the camera filling its box and hands each code it reads to its handler: the system's
 // own detector on iOS (AVFoundation), ML Kit's on Android (bundled, no network), the browser's
-// BarcodeDetector on the web. Browsers without it and the desktop have no scanner
-// (ScanUnavailable).
+// BarcodeDetector on the web. Browsers without it, devices without a camera and the desktop
+// have no scanner: barcode_supported() says so before one is mounted, and a scanner mounted
+// there reports ScanUnavailable.
 //
 //     BarcodeScanner(Style{grow: 1}, "qr", scanning.get(), void(Barcode code) {
 //         if (code.status == ScanCode) { scanned.set(code.value); scanning.set(false); }
@@ -21,6 +22,23 @@ struct Barcode { int status; string format; string value; }
 // The formats a scanner looks for, comma separated: qr, aztec, datamatrix, pdf417, ean13, ean8,
 // upca, upce, code128, code39, code93, itf, codabar ("" or "all": every one).
 const string kBarcodeAll = "all";
+
+// The platform's side of barcode_supported (native/ios, native/android, native/web): 1 when
+// the device has a back camera the scanner can read (iOS and Android) or the browser has
+// BarcodeDetector and a camera API (the web).
+extern int barcode_native_supported();
+
+// Whether a BarcodeScanner can read codes here, known before mounting one: false on a device
+// without a camera (a simulator), in a browser without BarcodeDetector (Firefox, desktop
+// Safari) and on the desktop; a scanner mounted there only reports ScanUnavailable. True does
+// not mean the user allowed the camera: that is asked when the first scanner mounts.
+bool barcode_supported() {
+#if defined(__ANDROID__) || defined(TARGET_OS_IOS) || defined(__wasm__)
+    return barcode_native_supported() != 0;
+#else
+    return false;
+#endif
+}
 
 // A view event of the scanner as a Barcode; the strings point into `payload`, whose format
 // word is cut off in place. A code's payload is "FORMAT VALUE", the value the rest.

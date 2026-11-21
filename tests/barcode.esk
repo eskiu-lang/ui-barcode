@@ -68,6 +68,8 @@ int main() {
     bool off = false;
     for (i in 0..named.size) { if (String_eq_cstr(&named.data[i], "scanning=0") == 1) off = true; }
     check(off, "pausing tells the scanner");
+    // The desktop has no scanner, and says so before one is mounted.
+    check(!barcode_supported(), "no scanner on the desktop");
     ui_shutdown();
     for (i in 0..named.size) { String_free(&named.data[i]); }
     named.free();

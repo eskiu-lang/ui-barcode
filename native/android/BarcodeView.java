@@ -61,6 +61,12 @@ public final class BarcodeView extends TextureView implements TextureView.Surfac
     private String lastValue = "";
     private long lastTime;
 
+    // barcode_supported (barcode.c): the device has a camera. ML Kit's scanner is bundled.
+    public static boolean supported() {
+        UiActivity activity = UiActivity.current();
+        return activity != null && activity.getPackageManager().hasSystemFeature(android.content.pm.PackageManager.FEATURE_CAMERA_ANY);
+    }
+
     public static void setup() {
         UiActivity.registerView("barcode", new UiActivity.ViewFactory() {
             @Override public View create(Context context, UiActivity.ViewEvents events) { return new BarcodeView(context, events); }
