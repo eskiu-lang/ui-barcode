@@ -30,11 +30,17 @@ separated list of `qr`, `aztec`, `datamatrix`, `pdf417`, `ean13`, `ean8`, `upca`
 the `value`, borrowed for the call. On `ScanDenied`, `ui_open_settings()` takes the user to
 the app's settings to allow the camera.
 
-| Platform | Reads codes with |
-|---|---|
-| iOS | AVFoundation's metadata output (no extra library) |
-| Android | ML Kit's barcode scanner, bundled with the app (`com.google.mlkit:barcode-scanning`, through the ui tool's Gradle build); no network, no Google Play services |
-| Web | the browser's `BarcodeDetector` (Chrome on Android and the desktop, Safari on iOS 17+); unavailable elsewhere |
+| Platform | Reads codes with | `barcode_supported()` |
+|---|---|---|
+| iOS | AVFoundation's metadata output (no extra library) | true with a camera; false on a simulator |
+| Android | ML Kit's barcode scanner, bundled with the app (`com.google.mlkit:barcode-scanning`, through the ui tool's Gradle build); no network, no Google Play services | true with a camera (`FEATURE_CAMERA_ANY`) |
+| Web | the browser's `BarcodeDetector` (Chrome on Android and the desktop, Safari on iOS 17+) | true where the browser has `BarcodeDetector` and a camera API; false in Firefox and desktop Safari |
+| macOS, Linux, Windows | none | false |
+
+`barcode_supported()` answers before a scanner is mounted, so an app can show another way
+to enter a code instead. Where it is false a mounted scanner draws nothing and reports
+`ScanUnavailable` once; nothing crashes. True does not mean the camera is allowed: the
+permission is asked when the first scanner mounts.
 
 The first scanner mounted asks for the camera permission (`NSCameraUsageDescription`, which
 an app's own `ui.toml` can word).

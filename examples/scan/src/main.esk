@@ -10,6 +10,10 @@ void Demo() {
     *Signal<int> status = use_signal<int>(ScanCode);
     bool scanning = found.get()[0] == 0 && status.get() == ScanCode;
     Column(Style{grow: 1, background: kit.page}) {
+        if (!barcode_supported()) {
+            Column(Style{padding: 24}) { Secondary("This device cannot scan codes."); }
+            return;
+        }
         BarcodeScanner(Style{grow: 1}, "qr", scanning, void(Barcode code) {
             status.set(code.status);
             if (code.status == ScanCode) { found.set(code.value); }
