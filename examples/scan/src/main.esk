@@ -1,5 +1,6 @@
 // Scan: a QR code read live from the camera, from <barcode>; scanning pauses on the first
-// code until "Scan again". `ui run ios` or `ui run android` on a device.
+// code until "Scan again". `ui run ios` or `ui run android` on a device (the desktop hosts say
+// there is no scanner).
 import <string>;
 import <ui>;
 import <ui/kit>;

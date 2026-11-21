@@ -42,6 +42,11 @@ to enter a code instead. Where it is false a mounted scanner draws nothing and r
 `ScanUnavailable` once; nothing crashes. True does not mean the camera is allowed: the
 permission is asked when the first scanner mounts.
 
+On the native desktop hosts (macOS, Linux, Windows) the package registers a `barcode` view that
+shows nothing and hands `on_code` one `ScanUnavailable`, so an app builds and runs there. It
+never reports a code. The desktop's `--webview` builds use the web's `BarcodeDetector` where
+the webview has it.
+
 The first scanner mounted asks for the camera permission (`NSCameraUsageDescription`, which
 an app's own `ui.toml` can word).
 
